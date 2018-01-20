@@ -40,7 +40,7 @@ namespace TrivialTestRunner
         public TestEntry Entry;
         public bool Failed;
         public string Message;
-    public string Summary => Failed ? "FAIL " : "OK   " + Entry.Name;
+    public string Summary => (Failed ? "FAIL " : "OK   ") + Entry.Name;
     }
 
 
@@ -53,7 +53,11 @@ namespace TrivialTestRunner
         // options
 
         public static bool CrashHard = false;
-
+        public static void Clear()
+        {
+            Entries.Clear();
+            Results.Clear();
+        }
         private static TestEntry[] DiscoverTests<T>()
         {
             TestKind resolveTestKind(IEnumerable<Case> attrs)
