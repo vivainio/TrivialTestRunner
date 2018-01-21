@@ -16,4 +16,4 @@ os.chdir("Test")
 c("dotnet run")
 
 os.chdir("../" + prjdir)
-c("dotnet pack -c Release")
+c("dotnet pack")

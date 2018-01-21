@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>TrivialTestRunner</Title>
     <Description>Simple replacement for NUnit / xUnit / whatever</Description>
     <Authors>vivainio</Authors>
     <Company />

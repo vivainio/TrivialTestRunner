@@ -1,20 +1,31 @@
 # TrivialTestRunner
+
 Dotnet Test Runner For The Rest Of Us (tm)
 
 ## Use case
 
-You have a small library with a modest set of tests. You don't care about "test explorer" or whatnot, but rather want to have a simple console application to run your tests.  You don't want to add fat loaders scanning your assemblies because they slow down the debugger launch.
+- You have a small library with a modest set of tests.
+- You don't care about "test explorer" or whatnot, but rather want to have a simple console application to run your tests.
+- You don't want to add fat loaders scanning your assemblies because they slow down the debugger launch.
+- You are too stupid and/or lazy to understand everything the bigger test frameworks do under the hood
+
+## Installation
+
+https://www.nuget.org/packages/TrivialTestRunner/ - or add TrivialTestRunner.cs to your project
 
 ## Usage
 
-In your test console application (where classes TestClass1 and TestClass2 contain the test methods)
+In your test console application (where classes TestClass1 and TestClass2 contain the test methods):
 
 ```csharp
+using TrivialTestRunner
+
 static void Main(string[] args)
 {
     TRunner.AddTests<TestClass1>();
     TRunner.AddTests<TestClass2>();
     TRunner.RunTests();
+    // write results to console
     TRunner.ReportAll();
 }
 ```
@@ -53,3 +64,7 @@ If you want not to catch exceptions while running the tests (i.e. you want to tr
 // CrashHard will raise exception all the way
 TRunner.CrashHard = true;
 ```
+
+## License
+
+MIT
