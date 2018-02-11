@@ -3,7 +3,7 @@ from __future__ import print_function
 import os,shutil
 
 prjdir = "TrivialTestRunner"
-
+version = "1.1.0.0"
 def c(s):
     print(">",s)
     err = os.system(s)
@@ -16,4 +16,4 @@ os.chdir("Test")
 c("dotnet run")
 
 os.chdir("../" + prjdir)
-c("dotnet pack")
+c("dotnet pack /p:Version=%s" % version)
