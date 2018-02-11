@@ -121,7 +121,7 @@ namespace TrivialTestRunner
                 {
                     Entry = te,
                     Failed = true,
-                    Message = e.Message + " " + e.InnerException.StackTrace.ToString()
+                    Message = e.InnerException.Message + " " + e.InnerException.StackTrace.ToString()
                 });
                 return false;
             }
