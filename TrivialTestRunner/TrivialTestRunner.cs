@@ -9,13 +9,21 @@ namespace TrivialTestRunner
 {
     public class Case : Attribute { }
     public class fCase : Case { }
-    public class TestFailure : Exception { }
+    public class TestFailure : Exception {
+        public TestFailure(string message) : base(message) { }
+        
+    }
     
     public static class Assert
     {
         public static void IsTrue(bool v)
         {
-            if (!v) throw new TestFailure();
+            if (!v) throw new TestFailure("Assert not true");
+        }
+        public static void AreEqual<T>(T expected, T actual) 
+        {
+
+            if (!object.Equals(expected, actual)) throw new TestFailure($"Assert.AreEqual - expected [{expected}] got [{actual}]");
         }
     }
 
@@ -176,6 +184,7 @@ namespace TrivialTestRunner
             Console.WriteLine(String.Join("\n", strings));
 
         }
-
+        // count of errors. Usable is exit code when returning from main
+        public static int ExitStatus => Results.Count(r => r.Failed);
     }
 }
