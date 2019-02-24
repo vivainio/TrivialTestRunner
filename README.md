@@ -1,5 +1,7 @@
 # TrivialTestRunner
 
+[![Build Status](https://dev.azure.com/ville0567/ville/_apis/build/status/vivainio.TrivialTestRunner?branchName=master)](https://dev.azure.com/ville0567/ville/_build/latest?definitionId=6&branchName=master)
+
 Dotnet Test Runner For The Rest Of Us (tm)
 
 ## Use case
