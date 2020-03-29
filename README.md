@@ -22,11 +22,11 @@ In your test console application (where classes TestClass1 and TestClass2 contai
 ```csharp
 using TrivialTestRunner
 
-static void Main(string[] args)
+static anync Task Main(string[] args)
 {
     TRunner.AddTests<TestClass1>();
     TRunner.AddTests<TestClass2>();
-    TRunner.RunTests();
+    await TRunner.RunTestsAsync();
     // write results to console
     TRunner.ReportAll();
 }
@@ -42,11 +42,21 @@ public static void Test1()
     Assert.IsTrue(true);
 }
 
+// normal non static case
 [Case]
-public static void Test2()
+public void Test2()
 {
     Assert.IsTrue(true);
 }
+
+// normal non static async case
+[Case]
+public async Task Test3()
+{
+    Assert.IsTrue(true);
+    return await Task.CompletedTask;
+}
+
 
 // focused case
 [fCase]

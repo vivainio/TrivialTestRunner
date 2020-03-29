@@ -8,23 +8,32 @@ using static TrivialTestRunner.TestEntry;
 
 namespace TrivialTestRunner
 {
-    public class Case : Attribute { }
-    public class fCase : Case { }
-    public class TestFailure : Exception {
-        public TestFailure(string message) : base(message) { }
-        
+    public class Case : Attribute
+    {
     }
-    
+
+    public class fCase : Case
+    {
+    }
+
+    public class TestFailure : Exception
+    {
+        public TestFailure(string message) : base(message)
+        {
+        }
+    }
+
     public static class Assert
     {
         public static void IsTrue(bool v)
         {
             if (!v) throw new TestFailure("Assert not true");
         }
-        public static void AreEqual<T>(T expected, T actual) 
-        {
 
-            if (!object.Equals(expected, actual)) throw new TestFailure($"Assert.AreEqual - expected [{expected}] got [{actual}]");
+        public static void AreEqual<T>(T expected, T actual)
+        {
+            if (!object.Equals(expected, actual))
+                throw new TestFailure($"Assert.AreEqual - expected [{expected}] got [{actual}]");
         }
     }
 
@@ -39,7 +48,9 @@ namespace TrivialTestRunner
         }
 
         public TestKind Kind { get; set; }
+
         public MethodInfo Mi { get; set; }
+
         // the single instance of the class. If not static
         public object Instance { get; set; }
         public string Name => $"{Mi?.ReflectedType?.Name}.{Mi?.Name}";
@@ -59,19 +70,21 @@ namespace TrivialTestRunner
         public static List<TestEntry> Entries = new List<TestEntry>();
         public static List<TestResult> Results = new List<TestResult>();
         public static bool CrashHard = false;
-        
-        public static Dictionary<Type, object> TestFixtures { get; }= new Dictionary<Type, object>();
 
-        public static T GetTestFixture<T>() where T: class
+        public static Dictionary<Type, object> TestFixtures { get; } = new Dictionary<Type, object>();
+
+        public static T GetTestFixture<T>() where T : class
         {
             return TestFixtures[typeof(T)] as T;
-        } 
+        }
+
         public static void Clear()
         {
             Entries.Clear();
             Results.Clear();
         }
-        private static TestEntry[] DiscoverTests<T>() where T: new()
+
+        private static TestEntry[] DiscoverTests<T>() where T : new()
         {
             TestKind resolveTestKind(IReadOnlyList<Case> attrs)
             {
@@ -79,10 +92,12 @@ namespace TrivialTestRunner
                 {
                     return TestKind.None;
                 }
+
                 if (attrs.Any(a => a is fCase))
                 {
                     return TestKind.Focused;
                 }
+
                 return TestKind.Normal;
             }
 
@@ -90,7 +105,7 @@ namespace TrivialTestRunner
             var klass = typeof(T);
             var instance = new T();
             TestFixtures.Add(typeof(T), instance);
-            
+
             var testEntries = klass.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
                 .Select(mi => (mi: mi, kind: resolveTestKind(mi.GetCustomAttributes<Case>().ToList())))
                 .Where(pair => pair.kind != TestKind.None)
@@ -99,16 +114,14 @@ namespace TrivialTestRunner
                     Kind = pair.kind,
                     Mi = pair.mi,
                     Instance = instance
-
                 }).ToArray();
             return testEntries;
-
         }
-        public static void AddTests<T>() where T: new()
+
+        public static void AddTests<T>() where T : new()
         {
             var tests = DiscoverTests<T>();
             Entries.AddRange(tests);
-
         }
 
         private static async Task<bool> RunOneTest(TestEntry te)
@@ -128,8 +141,8 @@ namespace TrivialTestRunner
                 {
                     await asTask;
                 }
-
             }
+
             if (CrashHard)
             {
                 await InvokeIt();
@@ -144,12 +157,11 @@ namespace TrivialTestRunner
                     Entry = te,
                     Failed = false,
                     Message = null
-
                 });
 
                 return true;
-
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Results.Add(new TestResult
                 {
@@ -172,11 +184,12 @@ namespace TrivialTestRunner
                 {
                     Console.WriteLine($"Fail {test.Name}");
                     listOk = false;
-
                 }
             }
+
             return listOk;
         }
+
         public static async Task RunTestsAsync()
         {
             var focused = Entries.Where(te => te.Kind == TestKind.Focused).ToArray();
@@ -202,12 +215,12 @@ namespace TrivialTestRunner
         }
 
 
-        public static void Report(IEnumerable<TestResult> results) 
+        public static void Report(IEnumerable<TestResult> results)
         {
             var strings = results.Select(r => r.Summary);
             Console.WriteLine(String.Join("\n", strings));
-
         }
+
         // count of errors. Usable is exit code when returning from main
         public static int ExitStatus => Results.Count(r => r.Failed);
     }

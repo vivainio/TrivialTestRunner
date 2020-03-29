@@ -7,6 +7,7 @@ namespace TrivialTestRunner.Test
     {
         public string InstanceString { get; set; } = "notset";
         public static List<int> WasRun = new List<int>();
+
         [Case]
         public static void OkTest1()
         {
@@ -16,7 +17,7 @@ namespace TrivialTestRunner.Test
 
         [Case]
         public static void OkTest2()
-        {                
+        {
             WasRun.Add(2);
         }
 
@@ -28,6 +29,7 @@ namespace TrivialTestRunner.Test
 
             WasRun.Add(3);
         }
+
         [Case]
         public static void OkTest4()
         {
@@ -41,12 +43,12 @@ namespace TrivialTestRunner.Test
             InstanceString = "wasrun";
             Assert.IsTrue(true);
         }
+
         [Case]
         public async Task OkInstanceTestWithTask()
         {
             Assert.IsTrue(true);
             await Task.CompletedTask;
         }
-
     }
 }
