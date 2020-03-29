@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using static TrivialTestRunner.TestEntry;
 
 namespace TrivialTestRunner
@@ -101,18 +102,33 @@ namespace TrivialTestRunner
 
         }
 
-        private static bool RunOneTest(TestEntry te)
+        private static async Task<bool> RunOneTest(TestEntry te)
 
         {
+            async Task InvokeIt()
+            {
+                var ret = te.Mi.Invoke(null, null);
+                if (ret == null)
+                {
+                    return;
+                }
+
+                var asTask = ret as Task;
+                if (asTask != null)
+                {
+                    await asTask;
+                }
+
+            }
             if (CrashHard)
             {
-                te.Mi.Invoke(null, null);
+                await InvokeIt();
                 return true;
             }
 
             try
             {
-                te.Mi.Invoke(null, null);
+                await InvokeIt();
                 Results.Add(new TestResult
                 {
                     Entry = te,
@@ -129,19 +145,19 @@ namespace TrivialTestRunner
                 {
                     Entry = te,
                     Failed = true,
-                    Message = e.InnerException.Message + " " + e.InnerException.StackTrace.ToString()
+                    Message = e.InnerException?.Message + " " + e.InnerException?.StackTrace.ToString()
                 });
                 return false;
             }
         }
 
 
-        private static bool RunTestList(IEnumerable<TestEntry> testList)
+        private static async Task<bool> RunTestList(IEnumerable<TestEntry> testList)
         {
             var listOk = true;
             foreach (var test in testList)
             {
-                var ok = RunOneTest(test);
+                var ok = await RunOneTest(test);
                 if (!ok)
                 {
                     Console.WriteLine($"Fail {test.Name}");
@@ -150,19 +166,17 @@ namespace TrivialTestRunner
                 }
             }
             return listOk;
-
-
         }
-        public static void RunTests()
+        public static async Task RunTestsAsync()
         {
             var focused = Entries.Where(te => te.Kind == TestKind.Focused).ToArray();
             if (focused.Length > 0)
             {
-                RunTestList(focused);
+                await RunTestList(focused);
             }
             else
             {
-                RunTestList(Entries);
+                await RunTestList(Entries);
             }
 
 

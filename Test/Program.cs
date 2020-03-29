@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace TrivialTestRunner.Test
 {
@@ -63,20 +64,35 @@ namespace TrivialTestRunner.Test
            
         }
 
+        [Case]
+        public static async Task FailingTestWithTask()
+        {
+            Assert.IsTrue(false);
+            await Task.CompletedTask;
+
+        }
+        [Case]
+        public static async Task SuccesfullTestWithTask()
+        {
+            Assert.IsTrue(true);
+            await Task.CompletedTask;
+        }
+        
+
     }
 
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             TRunner.AddTests<TestClass>();
-            TRunner.RunTests();
+            await TRunner.RunTestsAsync();
             Assert.IsTrue(TestClass.WasRun.SequenceEqual(new[] { 1, 2, 3, 4 }));
             TRunner.ReportAll();
             Assert.AreEqual(0, TRunner.ExitStatus);
             TRunner.Clear();
             TRunner.AddTests<SomeFailures>();
-            TRunner.RunTests();
+            await TRunner.RunTestsAsync();
             TRunner.ReportAll();
             Assert.IsTrue(SomeFailures.WasRun.SequenceEqual(new[] { 1, 2, 3 }));
 
@@ -86,18 +102,18 @@ namespace TrivialTestRunner.Test
             bool ok = true;
             try
             {
-                TRunner.RunTests();
+                await TRunner.RunTestsAsync();
                 ok = false;
 
             }
             catch (TargetInvocationException e)
             {
-                Assert.IsTrue(e.InnerException.GetType() == typeof(TestFailure));
+                Assert.IsTrue(e.InnerException?.GetType() == typeof(TestFailure));
                 ok = true;
             }
             Assert.IsTrue(ok);
 
-            Assert.AreEqual(3, TRunner.ExitStatus);
+            Assert.AreEqual(4, TRunner.ExitStatus);
 
         }
     }
