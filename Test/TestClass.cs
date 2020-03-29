@@ -41,6 +41,8 @@ namespace TrivialTestRunner.Test
         {
             // woohoo, this is asserted to have been set
             InstanceString = "wasrun";
+            WasRun.Add(5);
+
             Assert.IsTrue(true);
         }
 
@@ -48,6 +50,7 @@ namespace TrivialTestRunner.Test
         public async Task OkInstanceTestWithTask()
         {
             Assert.IsTrue(true);
+            WasRun.Add(6);
             await Task.CompletedTask;
         }
     }

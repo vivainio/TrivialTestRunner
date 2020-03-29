@@ -32,6 +32,8 @@ namespace TrivialTestRunner.Test
         [Case]
         public static async Task FailingTestWithTask()
         {
+            WasRun.Add(4);
+
             Assert.IsTrue(false);
             await Task.CompletedTask;
 
@@ -39,6 +41,8 @@ namespace TrivialTestRunner.Test
         [Case]
         public static async Task FailingInstanceTestWithTask()
         {
+            WasRun.Add(5);
+
             Assert.IsTrue(true);
             await Task.CompletedTask;
         }
