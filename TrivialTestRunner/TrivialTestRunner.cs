@@ -38,10 +38,11 @@ namespace TrivialTestRunner
             Normal
         }
 
-        public TestKind Kind;
-        public MethodInfo Mi;
-
-        public string Name => $"{Mi.ReflectedType.Name}.{Mi.Name}";
+        public TestKind Kind { get; set; }
+        public MethodInfo Mi { get; set; }
+        // the single instance of the class. If not static
+        public object Instance { get; set; }
+        public string Name => $"{Mi?.ReflectedType?.Name}.{Mi?.Name}";
     }
 
     public class TestResult
@@ -49,27 +50,30 @@ namespace TrivialTestRunner
         public TestEntry Entry;
         public bool Failed;
         public string Message;
-    public string Summary => (Failed ? "FAIL " : "OK   ") + Entry.Name;
+        public string Summary => (Failed ? "FAIL " : "OK   ") + Entry.Name;
     }
 
 
     public static class TRunner
     {
-
         public static List<TestEntry> Entries = new List<TestEntry>();
         public static List<TestResult> Results = new List<TestResult>();
-
-        // options
-
         public static bool CrashHard = false;
+        
+        public static Dictionary<Type, object> TestFixtures { get; }= new Dictionary<Type, object>();
+
+        public static T GetTestFixture<T>() where T: class
+        {
+            return TestFixtures[typeof(T)] as T;
+        } 
         public static void Clear()
         {
             Entries.Clear();
             Results.Clear();
         }
-        private static TestEntry[] DiscoverTests<T>()
+        private static TestEntry[] DiscoverTests<T>() where T: new()
         {
-            TestKind resolveTestKind(IEnumerable<Case> attrs)
+            TestKind resolveTestKind(IReadOnlyList<Case> attrs)
             {
                 if (!attrs.Any())
                 {
@@ -84,18 +88,23 @@ namespace TrivialTestRunner
 
 
             var klass = typeof(T);
-            return klass.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Select(mi => (mi: mi, kind: resolveTestKind(mi.GetCustomAttributes<Case>())))
+            var instance = new T();
+            TestFixtures.Add(typeof(T), instance);
+            
+            var testEntries = klass.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
+                .Select(mi => (mi: mi, kind: resolveTestKind(mi.GetCustomAttributes<Case>().ToList())))
                 .Where(pair => pair.kind != TestKind.None)
                 .Select(pair => new TestEntry
                 {
                     Kind = pair.kind,
-                    Mi = pair.mi
+                    Mi = pair.mi,
+                    Instance = instance
 
                 }).ToArray();
+            return testEntries;
 
         }
-        public static void AddTests<T>()
+        public static void AddTests<T>() where T: new()
         {
             var tests = DiscoverTests<T>();
             Entries.AddRange(tests);
@@ -107,7 +116,8 @@ namespace TrivialTestRunner
         {
             async Task InvokeIt()
             {
-                var ret = te.Mi.Invoke(null, null);
+                var instance = te.Mi.IsStatic ? null : te.Instance;
+                var ret = te.Mi.Invoke(instance, null);
                 if (ret == null)
                 {
                     return;
